@@ -1,0 +1,88 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Productos iPhone API",
+  "dateExported": "2025-10-04",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "name": "1. Obtener todos los productos",
+      "method": "GET",
+      "url": "http://localhost:8080/api/productos",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "name": "2. Obtener producto por ID",
+      "method": "GET",
+      "url": "http://localhost:8080/api/productos/1",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "name": "3. Crear nuevo producto",
+      "method": "POST",
+      "url": "http://localhost:8080/api/productos",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"modelo\": \"iPhone 15 Pro\",\n  \"precio\": 999.99,\n  \"almacenamiento\": \"256GB\",\n  \"color\": \"Titanio Natural\",\n  \"stock\": 10\n}"
+      }
+    },
+    {
+      "name": "4. Actualizar producto",
+      "method": "PUT",
+      "url": "http://localhost:8080/api/productos/1",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"modelo\": \"iPhone 15 Pro Max\",\n  \"precio\": 1199.99,\n  \"almacenamiento\": \"512GB\",\n  \"color\": \"Titanio Azul\",\n  \"stock\": 15\n}"
+      }
+    },
+    {
+      "name": "5. Eliminar producto",
+      "method": "DELETE",
+      "url": "http://localhost:8080/api/productos/1",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "name": "6. Buscar por modelo",
+      "method": "GET",
+      "url": "http://localhost:8080/api/productos/buscar/modelo/iPhone 15",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "name": "7. Buscar por color",
+      "method": "GET",
+      "url": "http://localhost:8080/api/productos/buscar/color/Titanio",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "name": "8. Buscar por almacenamiento",
+      "method": "GET",
+      "url": "http://localhost:8080/api/productos/buscar/almacenamiento/256GB",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "name": "9. Productos disponibles",
+      "method": "GET",
+      "url": "http://localhost:8080/api/productos/disponibles",
+      "headers": [],
+      "body": {}
+    }
+  ]
+}

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba API - Productos iPhone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+            border-bottom: 2px solid #007AFF;
+            padding-bottom: 10px;
+        }
+        button {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0051D5;
+        }
+        .delete-btn {
+            background-color: #FF3B30;
+        }
+        .delete-btn:hover {
+            background-color: #D32F2F;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        #resultado {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍎 Prueba API REST - Productos iPhone</h1>
+
+    <div class="container">
+        <h2>1. Consultas GET</h2>
+        <button onclick="obtenerTodos()">Obtener Todos los Productos</button>
+        <button onclick="obtenerDisponibles()">Productos Disponibles</button>
+        <br><br>
+        
+        <input type="number" id="idBuscar" placeholder="ID del producto">
+        <button onclick="obtenerPorId()">Buscar por ID</button>
+        <br><br>
+        
+        <input type="text" id="modeloBuscar" placeholder="Ej: iPhone 15">
+        <button onclick="buscarPorModelo()">Buscar por Modelo</button>
+        <br>
+        
+        <input type="text" id="colorBuscar" placeholder="Ej: Negro">
+        <button onclick="buscarPorColor()">Buscar por Color</button>
+        <br>
+        
+        <input type="text" id="almacenamientoBuscar" placeholder="Ej: 256GB">
+        <button onclick="buscarPorAlmacenamiento()">Buscar por Almacenamiento</button>
+    </div>
+
+    <div class="container">
+        <h2>2. Crear Producto (POST)</h2>
+        <div class="form-group">
+            <label>Modelo:</label>
+            <input type="text" id="modelo" placeholder="iPhone 15 Pro">
+        </div>
+        <div class="form-group">
+            <label>Precio:</label>
+            <input type="number" id="precio" step="0.01" placeholder="999.99">
+        </div>
+        <div class="form-group">
+            <label>Almacenamiento:</label>
+            <input type="text" id="almacenamiento" placeholder="256GB">
+        </div>
+        <div class="form-group">
+            <label>Color:</label>
+            <input type="text" id="color" placeholder="Titanio Natural">
+        </div>
+        <div class="form-group">
+            <label>Stock:</label>
+            <input type="number" id="stock" placeholder="10">
+        </div>
+        <button onclick="crearProducto()">Crear Producto</button>
+    </div>
+
+    <div class="container">
+        <h2>3. Actualizar Producto (PUT)</h2>
+        <div class="form-group">
+            <label>ID a Actualizar:</label>
+            <input type="number" id="idActualizar" placeholder="1">
+        </div>
+        <div class="form-group">
+            <label>Modelo:</label>
+            <input type="text" id="modeloActualizar" placeholder="iPhone 15 Pro">
+        </div>
+        <div class="form-group">
+            <label>Precio:</label>
+            <input type="number" id="precioActualizar" step="0.01" placeholder="999.99">
+        </div>
+        <div class="form-group">
+            <label>Almacenamiento:</label>
+            <input type="text" id="almacenamientoActualizar" placeholder="256GB">
+        </div>
+        <div class="form-group">
+            <label>Color:</label>
+            <input type="text" id="colorActualizar" placeholder="Titanio Natural">
+        </div>
+        <div class="form-group">
+            <label>Stock:</label>
+            <input type="number" id="stockActualizar" placeholder="10">
+        </div>
+        <button onclick="actualizarProducto()">Actualizar Producto</button>
+    </div>
+
+    <div class="container">
+        <h2>4. Eliminar Producto (DELETE)</h2>
+        <input type="number" id="idEliminar" placeholder="ID del producto">
+        <button class="delete-btn" onclick="eliminarProducto()">Eliminar Producto</button>
+    </div>
+
+    <div class="container">
+        <h2>Resultado:</h2>
+        <div id="resultado">Esperando petición...</div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/productos';
+
+        function mostrarResultado(data, exito = true) {
+            const resultado = document.getElementById('resultado');
+            resultado.className = exito ? 'success' : 'error';
+            resultado.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function obtenerTodos() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                mostrarResultado(data);
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function obtenerPorId() {
+            const id = document.getElementById('idBuscar').value;
+            if (!id) {
+                alert('Ingrese un ID');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarResultado(data);
+                } else {
+                    mostrarResultado({error: 'Producto no encontrado'}, false);
+                }
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function crearProducto() {
+            const producto = {
+                modelo: document.getElementById('modelo').value,
+                precio: parseFloat(document.getElementById('precio').value),
+                almacenamiento: document.getElementById('almacenamiento').value,
+                color: document.getElementById('color').value,
+                stock: parseInt(document.getElementById('stock').value)
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(producto)
+                });
+                const data = await response.json();
+                mostrarResultado(data);
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function actualizarProducto() {
+            const id = document.getElementById('idActualizar').value;
+            if (!id) {
+                alert('Ingrese un ID');
+                return;
+            }
+
+            const producto = {
+                modelo: document.getElementById('modeloActualizar').value,
+                precio: parseFloat(document.getElementById('precioActualizar').value),
+                almacenamiento: document.getElementById('almacenamientoActualizar').value,
+                color: document.getElementById('colorActualizar').value,
+                stock: parseInt(document.getElementById('stockActualizar').value)
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(producto)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarResultado(data);
+                } else {
+                    mostrarResultado({error: 'No se pudo actualizar'}, false);
+                }
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function eliminarProducto() {
+            const id = document.getElementById('idEliminar').value;
+            if (!id) {
+                alert('Ingrese un ID');
+                return;
+            }
+
+            if (!confirm('¿Está seguro de eliminar este producto?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    mostrarResultado({mensaje: 'Producto eliminado exitosamente'});
+                } else {
+                    mostrarResultado({error: 'No se pudo eliminar'}, false);
+                }
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function buscarPorModelo() {
+            const modelo = document.getElementById('modeloBuscar').value;
+            if (!modelo) {
+                alert('Ingrese un modelo');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/buscar/modelo/${modelo}`);
+                const data = await response.json();
+                mostrarResultado(data);
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function buscarPorColor() {
+            const color = document.getElementById('colorBuscar').value;
+            if (!color) {
+                alert('Ingrese un color');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/buscar/color/${color}`);
+                const data = await response.json();
+                mostrarResultado(data);
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function buscarPorAlmacenamiento() {
+            const almacenamiento = document.getElementById('almacenamientoBuscar').value;
+            if (!almacenamiento) {
+                alert('Ingrese un almacenamiento');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/buscar/almacenamiento/${almacenamiento}`);
+                const data = await response.json();
+                mostrarResultado(data);
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+
+        async function obtenerDisponibles() {
+            try {
+                const response = await fetch(`${API_URL}/disponibles`);
+                const data = await response.json();
+                mostrarResultado(data);
+            } catch (error) {
+                mostrarResultado({error: error.message}, false);
+            }
+        }
+    </script>
+</body>
+</html>
